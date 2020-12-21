@@ -1,0 +1,79 @@
+link(href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400" rel="stylesheet")
+
+script#v-carousel(type="x/template")
+  div.container
+    h1(v-show="show") Vue Carousel
+    b-button(@click="showCart = !showCart" v-if="show" id="showCartButton" style="display: block; margin: auto 0 auto auto;") Cart ({{cart.length}})
+    .card-carousel-wrapper
+      //- b-popover(:show.sync="showCart"  target="showCartButton" placement="bottomleft")
+      .cart(:class="{show: showCart}")
+        .close(@click="showCart = !showCart") &times;
+        h5 Cart
+        hr
+        .cartItems
+          .cartItem(
+            v-for="cI in cart"
+          )
+            span {{cI.name}}
+            span(@click="cI.qty>99999?cI.qty=parseInt(cI.qty)-100000:cI.qty=1" class="controlSpan") -
+            input(v-model="cI.qty")
+            span(@click="cI.qty=parseInt(cI.qty)+100000" class="controlSpan") +
+            span ${{price(cI.qty, cI.price)}}
+            span(
+            class="delete" 
+            @click="delCart(cI.id)"
+            ) DEL
+        .cartTotal
+          span Total : 
+          span {{totalCart}}
+      .pop-up(
+          :class="carousel.class"
+        )
+        .close(@click="carousel.class='hidden'") &times;
+        .card-carousel--card
+          img(src="https://placehold.it/300x300")
+          .card-carousel--card--footer
+            p {{ carousel.name ? carousel.name : '' }}
+            p {{ carousel.tag ? carousel.tag : '' }}
+            div(class="controls")
+                  span(@click="items[carousel.index].qty>99999?items[carousel.index].qty=parseInt(items[carousel.index].qty)-100000:items[carousel.index].qty=0" class="subSpan") -
+                  input(v-model="items[carousel.index].qty")
+                  span(@click="items[carousel.index].qty=parseInt(items[carousel.index].qty)+100000" class="addSpan") +
+                  span(
+                  :class="{add: true, disable: items[carousel.index].qty==0}" 
+                  @click="addCart(carousel.index)"
+                  ) Add
+      .overlay(@click="cardCall" v-if="!show")
+      .card-carousel--nav__left(
+        @click="moveCarousel(-1)"
+        :disabled="atHeadOfList"
+        v-if="show"
+      )
+      .card-carousel(
+        v-if="show"
+      )
+        .card-carousel--overflow-container
+          .card-carousel-cards(:style="{ transform: 'translateX' + '(' + currentOffset + 'px' + ')'}")
+            .card-carousel--card(
+              v-for="(item, index) in items"
+             )
+              img(src="https://placehold.it/200x200" @click="showCarousel(index)")
+              .card-carousel--card--footer
+                p {{ item.name }}
+                p {{ item.tag }}
+                div(class="controls")
+                  span(@click="item.qty>99999?item.qty=parseInt(item.qty)-100000:item.qty=0" class="subSpan") -
+                  span(@click="item.qty=parseInt(item.qty)+parseInt(100000)" class="addSpan") +
+                  input(v-model="item.qty" type="number")
+                  span(
+                  :class="{add: true, disable: item.qty==0}" 
+                  @click="addCart(index)"
+                  ) >
+                
+      .card-carousel--nav__right(
+        @click="moveCarousel(1)"
+        :disabled="atEndOfList"
+        v-if="show"
+      )
+#app 
+  carousel
